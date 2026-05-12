@@ -1,10 +1,11 @@
+require('dotenv').config();
 import express from "express";
 import cors from "cors";
 
 const app  = express();
 const PORT = 3001;
 
-const API_KEY = "50773e1af60748f16ad6ba9e59e96fa0";
+const API_KEY = process.env.FOOTBALL_API_KEY;
 const BASE    = "https://v3.football.api-sports.io";
 
 const LEAGUE_IDS = {
