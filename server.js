@@ -1,11 +1,42 @@
 require('dotenv').config();
 import express from "express";
 import cors from "cors";
+import Database from "better-sqlite3";
+
+const db = new Database("database.db");
+// สร้างตารางครั้งแรก
+db.exec(`
+  CREATE TABLE IF NOT EXISTS cache (
+    key       TEXT PRIMARY KEY,
+    data      TEXT NOT NULL,
+    cached_at INTEGER NOT NULL
+  )
+`);
+
+const CACHE_TTL = 5 * 60 * 1000; // 5 นาที
+
+function getCache(key) {
+  const row = db.prepare("SELECT * FROM cache WHERE key = ?").get(key);
+  if (!row) return null;
+  if (Date.now() - row.cached_at > CACHE_TTL) {
+    db.prepare("DELETE FROM cache WHERE key = ?").run(key);
+    return null;
+  }
+  return JSON.parse(row.data);
+}
+
+function setCache(key, data) {
+  db.prepare(`
+    INSERT OR REPLACE INTO cache (key, data, cached_at)
+    VALUES (?, ?, ?)
+  `).run(key, JSON.stringify(data), Date.now());
+}
 
 const app  = express();
 const PORT = 3001;
 
-const API_KEY = process.env.FOOTBALL_API_KEY;
+const API_KEY = "50773e1af60748f16ad6ba9e59e96fa0";
+//const API_KEY = process.env.FOOTBALL_API_KEY;
 const BASE    = "https://v3.football.api-sports.io";
 
 const LEAGUE_IDS = {
@@ -49,6 +80,38 @@ async function fetchAPI(path) {
   setCache(path, data);
   return data;
 }
+
+app.get("/api/scorers/:code", async (req, res) => {
+  try {
+    const leagueId = LEAGUE_IDS[req.params.code];
+    if (!leagueId) return res.status(400).json({ error: "Unknown league" });
+
+    const data    = await fetchAPI(`/players/topscorers?league=${leagueId}&season=${SEASON}`);
+    const scorers = (data.response || []).slice(0, 10).map((s) => ({
+      rank:       s.statistics[0]?.games?.lineups ?? 0,
+      player: {
+        id:          s.player.id,
+        name:        s.player.name,
+        nationality: s.player.nationality,
+        age:         s.player.age,
+        photo:       s.player.photo,
+      },
+      team: {
+        id:   s.statistics[0]?.team?.id,
+        name: s.statistics[0]?.team?.name,
+        logo: s.statistics[0]?.team?.logo,
+      },
+      goals:   s.statistics[0]?.goals?.total  || 0,
+      assists: s.statistics[0]?.goals?.assists || 0,
+      games:   s.statistics[0]?.games?.appearences || 0,
+    }));
+
+    res.json({ scorers });
+  } catch (e) {
+    console.error("[scorers]", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
 
 app.get("/api/standings/:code", async (req, res) => {
   try {

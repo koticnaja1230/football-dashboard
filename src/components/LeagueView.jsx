@@ -6,6 +6,7 @@ import ChampionHall from "./ChampionHall.jsx";
 
 const tabs = [
   { key: "standings", label: "ตารางคะแนน" },
+  { key: "scorers", label: "ดาวซัลโว" },
   { key: "recent", label: "ผลล่าสุด" },
   { key: "upcoming", label: "โปรแกรมต่อไป" },
   { key: "champ", label: "ทำเนียบแชมป์" },
