@@ -3,7 +3,7 @@ import { useLeagueData } from "../hooks/useLeagueData.js";
 import MatchCard from "./MatchCard.jsx";
 import StandingsTable from "./StandingsTable.jsx";
 import ChampionHall from "./ChampionHall.jsx";
-import TopScorers from "./TopScorers.jsx";
+import TopScorers from "./Topscorers.jsx";
 import TopAssists from "./Topassists.jsx";
 
 const tabs = [
