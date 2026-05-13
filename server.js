@@ -3,6 +3,10 @@ import express from "express";
 import cors from "cors";
 import Database from "better-sqlite3";
 import { withCache, TTL, standingsCache } from "./db/cache.js";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -67,6 +71,7 @@ async function fetchAPI(path) {
   return data;
 }
 
+app.use(express.static(join(__dirname, "dist")));
 // ── Routes ───────────────────────────────────────────────────────
 
 // ตารางคะแนน
@@ -205,20 +210,20 @@ app.get("/api/assists/:code", async (req, res) => {
 
     const assisters = (data.response || []).slice(0, 10).map((s) => ({
       player: {
-        id:          s.player.id,
-        name:        s.player.name,
+        id: s.player.id,
+        name: s.player.name,
         nationality: s.player.nationality,
-        age:         s.player.age,
-        photo:       s.player.photo,
+        age: s.player.age,
+        photo: s.player.photo,
       },
       team: {
-        id:   s.statistics[0]?.team?.id,
+        id: s.statistics[0]?.team?.id,
         name: s.statistics[0]?.team?.name,
         logo: s.statistics[0]?.team?.logo,
       },
-      assists: s.statistics[0]?.goals?.assists  || 0,
-      goals:   s.statistics[0]?.goals?.total    || 0,
-      games:   s.statistics[0]?.games?.appearences || 0,
+      assists: s.statistics[0]?.goals?.assists || 0,
+      goals: s.statistics[0]?.goals?.total || 0,
+      games: s.statistics[0]?.games?.appearences || 0,
     }));
 
     res.json({ assisters });
@@ -287,6 +292,10 @@ app.get("/api/coach/:teamId", async (req, res) => {
     console.error("[coach]", e.message);
     res.status(500).json({ error: e.message });
   }
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(join(__dirname, "dist", "index.html"));
 });
 
 app.listen(PORT, () =>

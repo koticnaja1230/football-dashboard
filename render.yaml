@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: football-dashboard
+    runtime: node
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
+    envVars:
+      - key: FOOTBALL_API_KEY
+        sync: false          # ใส่เองใน dashboard
+      - key: DB_PATH
+        value: /data/database.db
+    disk:
+      name: db
+      mountPath: /data       # persistent disk เก็บ SQLite
+      sizeGB: 1
