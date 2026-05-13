@@ -298,6 +298,10 @@ app.get("*", (req, res) => {
   res.sendFile(join(__dirname, "dist", "index.html"));
 });
 
-app.listen(PORT, () =>
-  console.log(`✅  Backend ready →  http://localhost:${PORT}`),
-);
+if (process.env.VERCEL !== "1") {
+  app.listen(PORT, () =>
+    console.log(`✅  Backend ready →  http://localhost:${PORT}`)
+  );
+}
+
+export default app;

@@ -1,8 +1,8 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://football-api.onrender.com/api/:path*"
-    }
+    { "source": "/api/(.*)", "destination": "/server.js" },
+    { "source": "/(.*)",     "destination": "/index.html" }
   ]
 }
