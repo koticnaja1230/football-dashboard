@@ -7,4 +7,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .DS_Store
-.vscode/
+football.db
+football.db-shm
+football.db-wal
+database.db
+database.db-shm
+database.db-wal

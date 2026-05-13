@@ -3,13 +3,16 @@ import { useLeagueData } from "../hooks/useLeagueData.js";
 import MatchCard from "./MatchCard.jsx";
 import StandingsTable from "./StandingsTable.jsx";
 import ChampionHall from "./ChampionHall.jsx";
+import TopScorers from "./TopScorers.jsx";
+import TopAssists from "./Topassists.jsx";
 
 const tabs = [
   { key: "standings", label: "ตารางคะแนน" },
-  { key: "scorers", label: "ดาวซัลโว" },
   { key: "recent", label: "ผลล่าสุด" },
   { key: "upcoming", label: "โปรแกรมต่อไป" },
-  { key: "champ", label: "ทำเนียบแชมป์" },
+  { key: "scorers", label: "ดาวซัลโว" },
+  { key: "assists", label: "แอสซิสต์" },
+  { key: "champ",   label: "ทำเนียบแชมป์" },
 ];
 
 export default function LeagueView({ league }) {
@@ -20,30 +23,26 @@ export default function LeagueView({ league }) {
 
   const finished =
     matches
-      ?.filter((match) => match.status === "FINISHED")
+      ?.filter((m) => m.status === "FINISHED")
       .slice(-10)
       .reverse() || [];
   const scheduled =
     matches
-      ?.filter(
-        (match) => match.status === "SCHEDULED" || match.status === "TIMED",
-      )
+      ?.filter((m) => m.status === "SCHEDULED" || m.status === "TIMED")
       .slice(0, 10) || [];
   const live =
-    matches?.filter(
-      (match) => match.status === "IN_PLAY" || match.status === "PAUSED",
-    ) || [];
+    matches?.filter((m) => m.status === "IN_PLAY" || m.status === "PAUSED") ||
+    [];
 
-  if (loading) {
+  if (loading)
     return (
       <div className="state-box">
         <div className="spinner" />
         <p>กำลังโหลดข้อมูล...</p>
       </div>
     );
-  }
 
-  if (error) {
+  if (error)
     return (
       <div className="state-box error">
         <p>⚠️ {error}</p>
@@ -52,7 +51,6 @@ export default function LeagueView({ league }) {
         </button>
       </div>
     );
-  }
 
   return (
     <div className="league-view">
@@ -87,29 +85,37 @@ export default function LeagueView({ league }) {
       </div>
 
       {tab === "standings" && standings && <StandingsTable table={standings} />}
+
       {tab === "recent" && (
         <div className="matches-grid">
           {finished.length === 0 ? (
             <p className="empty">ยังไม่มีผลการแข่งขัน</p>
           ) : (
-            finished.map((match) => <MatchCard key={match.id} match={match} />)
+            finished.map((m) => <MatchCard key={m.id} match={m} />)
           )}
         </div>
       )}
+
       {tab === "upcoming" && (
         <div className="matches-grid">
           {scheduled.length === 0 ? (
             <p className="empty">ยังไม่มีโปรแกรม</p>
           ) : (
-            scheduled.map((match) => <MatchCard key={match.id} match={match} />)
+            scheduled.map((m) => <MatchCard key={m.id} match={m} />)
           )}
         </div>
       )}
+
+      {tab === "scorers" && <TopScorers leagueId={league.id} />}
+
+      {tab === "assists" && <TopAssists leagueId={league.id} />}
+
       {tab === "champ" && <ChampionHall leagueId={league.id} />}
+
       {tab === "live" && (
         <div className="matches-grid">
-          {live.map((match) => (
-            <MatchCard key={match.id} match={match} />
+          {live.map((m) => (
+            <MatchCard key={m.id} match={m} />
           ))}
         </div>
       )}

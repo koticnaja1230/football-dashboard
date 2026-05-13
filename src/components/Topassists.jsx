@@ -2,20 +2,20 @@ import { useState, useEffect } from "react";
 
 const MEDAL = ["🥇", "🥈", "🥉"];
 
-export default function TopScorers({ leagueId }) {
-  const [scorers, setScorers] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+export default function TopAssists({ leagueId }) {
+  const [assisters, setAssisters] = useState(null);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState(null);
 
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch(`/api/scorers/${leagueId}`)
+    fetch(`/api/assists/${leagueId}`)
       .then((r) => {
         if (!r.ok) throw new Error(r.status);
         return r.json();
       })
-      .then((d) => setScorers(d.scorers || []))
+      .then((d) => setAssisters(d.assisters || []))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [leagueId]);
@@ -27,6 +27,7 @@ export default function TopScorers({ leagueId }) {
         <p>กำลังโหลด...</p>
       </div>
     );
+
   if (error)
     return (
       <div className="state-box error">
@@ -36,17 +37,17 @@ export default function TopScorers({ leagueId }) {
 
   return (
     <div className="scorers-wrap">
-      {/* Header */}
+      {/* Header — แอสซิสต์นำ, ประตูรอง */}
       <div className="scorers-head">
         <span className="sh-rank">#</span>
         <span className="sh-left">นักเตะ</span>
         <span className="sh-left">ทีม</span>
-        <span className="sh-center">⚽&nbsp;ประตู</span>
         <span className="sh-center">🅰️&nbsp;แอสซิสต์</span>
+        <span className="sh-center">⚽&nbsp;ประตู</span>
         <span className="sh-center">นัด</span>
       </div>
 
-      {scorers.map((s, i) => (
+      {assisters.map((s, i) => (
         <div
           key={s.player.id}
           className={`scorers-row${i < 3 ? " top-three" : ""}${i === 0 ? " rank-1" : ""}`}
@@ -86,20 +87,22 @@ export default function TopScorers({ leagueId }) {
               src={s.team.logo}
               alt={s.team.name}
               className="sc-team-logo"
-              onError={(e) => {
-                e.target.style.display = "none";
-              }}
+              onError={(e) => { e.target.style.display = "none"; }}
             />
             <span className="sc-team-name">{s.team.name}</span>
           </div>
 
-          {/* สถิติ */}
-          <div className="sc-stat goals-cell">
-            <span className="sc-goals">{s.goals}</span>
-          </div>
+          {/* แอสซิสต์ — primary stat */}
           <div className="sc-stat">
             <span className="sc-assists">{s.assists ?? "—"}</span>
           </div>
+
+          {/* ประตู — secondary stat */}
+          <div className="sc-stat goals-cell">
+            <span className="sc-goals">{s.goals ?? "—"}</span>
+          </div>
+
+          {/* นัด */}
           <div className="sc-stat">
             <span className="sc-games">{s.games}</span>
           </div>

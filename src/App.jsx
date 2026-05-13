@@ -50,11 +50,11 @@ export default function App() {
       <footer className="app-footer">
         Data by{" "}
         <a
-          href="https://www.football-data.org"
+          href="https://www.api-football.com"
           target="_blank"
           rel="noreferrer"
         >
-          football-data.org
+          API-Football
         </a>
       </footer>
     </div>
